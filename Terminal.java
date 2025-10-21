@@ -46,20 +46,25 @@ public class Terminal {
             List<String> names = new ArrayList<>();
             // Convert the directory stream to an array of paths
             Path[] paths = Files.list(dir).toArray(Path[]::new);
-            // Take the file name from the whole directory and convert it to string using normal for loop
+            // Take the file name from the whole directory and convert it to string using
+            // normal for loop
             for (int i = 0; i < paths.length; i++) {
                 try {
                     if (Files.isReadable(paths[i])) // Ensure the file is readble
                         names.add(paths[i].getFileName().toString());
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
                 // skip files that cant be accessed
             }
             // sort reversely if -r is provided
-            if (reverse) names.sort(Comparator.reverseOrder());
-            else names.sort(Comparator.naturalOrder());
+            if (reverse)
+                names.sort(Comparator.reverseOrder());
+            else
+                names.sort(Comparator.naturalOrder());
 
             // print files
-            for (String name : names) System.out.println(name);
+            for (String name : names)
+                System.out.println(name);
 
         } catch (Exception e) { // if directory not founr or cant be accessed
             System.out.println("ls: cannot access directory " + currentDirectory);
@@ -82,7 +87,8 @@ public class Terminal {
         String target = args[0];
         if (target.equals("..")) {
             Path parent = currentDirectory.getParent();
-            if (parent != null) currentDirectory = parent.normalize();
+            if (parent != null)
+                currentDirectory = parent.normalize();
             return;
         }
 
@@ -90,8 +96,10 @@ public class Terminal {
             Path temp = Paths.get(target);
             Path final_path;
 
-            if (temp.isAbsolute()) final_path = temp;
-            else final_path = currentDirectory.resolve(temp);
+            if (temp.isAbsolute())
+                final_path = temp;
+            else
+                final_path = currentDirectory.resolve(temp);
 
             final_path = final_path.toAbsolutePath().normalize();
 
@@ -117,8 +125,10 @@ public class Terminal {
             Path target = Paths.get(name);
             Path file_Path;
 
-            if (target.isAbsolute()) file_Path = target;
-            else file_Path = currentDirectory.resolve(target);
+            if (target.isAbsolute())
+                file_Path = target;
+            else
+                file_Path = currentDirectory.resolve(target);
 
             if (!Files.exists(file_Path)) {
                 System.out.println("rm: cannot remove '" + name + "': No such file or directory");
@@ -155,8 +165,10 @@ public class Terminal {
             Path src = Paths.get(source_Str);
             Path dest = Paths.get(destination_Str);
 
-            if (!src.isAbsolute()) src = currentDirectory.resolve(src);
-            if (!dest.isAbsolute()) dest = currentDirectory.resolve(dest);
+            if (!src.isAbsolute())
+                src = currentDirectory.resolve(src);
+            if (!dest.isAbsolute())
+                dest = currentDirectory.resolve(dest);
 
             src = src.toAbsolutePath().normalize();
             dest = dest.toAbsolutePath().normalize();
@@ -268,13 +280,15 @@ public class Terminal {
         }
 
         try {
-            if (!Files.exists(destination)) Files.createDirectories(destination);
+            if (!Files.exists(destination))
+                Files.createDirectories(destination);
 
             Files.walkFileTree(source, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     Path targetDir = destination.resolve(source.relativize(dir));
-                    if (!Files.exists(targetDir)) Files.createDirectories(targetDir);
+                    if (!Files.exists(targetDir))
+                        Files.createDirectories(targetDir);
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -286,16 +300,18 @@ public class Terminal {
                 }
             });
 
-            System.out.println("Copied directory recursively from " + source.getFileName() + " to " + destination.getFileName());
+            System.out.println(
+                    "Copied directory recursively from " + source.getFileName() + " to " + destination.getFileName());
         } catch (Exception e) {
             System.out.println("cp -r: error copying directory: " + e.getMessage());
         }
     }
-    
+
     // ---------- cat ----------
     public void cat(String[] args) {
         if (args == null || (args.length != 1 && args.length != 2)) {
-            System.out.println("Oops! incorrect file name. Please use format: cat filename.extension or cat file1name.extension file2name.extension ....");
+            System.out.println(
+                    "Oops! incorrect file name. Please use format: cat filename.extension or cat file1name.extension file2name.extension ....");
             return;
         }
 
@@ -341,7 +357,7 @@ public class Terminal {
             for (String line : All_Lines) {
                 if (line.trim().isEmpty() == false) {
                     word_Count += line.trim().split("\\s+").length;
-                }else {
+                } else {
                     word_Count += 0;
                 }
                 char_Count += line.length() + 1;
@@ -353,14 +369,27 @@ public class Terminal {
         }
     }
 
-     // ---------- zip ----------
+    // ---------- zip ----------
     public void zip(String[] args) {
-        if (args == null || args.length < 2) {    
-            System.out.println("zip: usage: zip <archive.zip> <file1> [file2] ...");
-            return;
+
+        boolean recursive = false;
+        int startIndex = 0;
+
+        if (args[0].equals("-r")) {
+            recursive = true;
+            startIndex = 1;
+            if (args.length < 3) {
+                System.out.println("zip: usage: zip -r <archive.zip> <directory>");
+                return;
+            }
+        } else {
+            if (args == null || args.length < 2) {
+                System.out.println("zip: usage: zip [-r] <archive.zip> <file1> [file2] ...");
+                return;
+            }
         }
 
-        String archiveName = args[0]; 
+        String archiveName = args[startIndex];
         try {
             Path archivePath = Paths.get(archiveName);
             if (!archivePath.isAbsolute()) {
@@ -369,32 +398,43 @@ public class Terminal {
             archivePath = archivePath.toAbsolutePath().normalize();
 
             try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(archivePath.toFile()))) {
-                for (int i = 1; i < args.length; i++) {
-                    String fileName = args[i];
-                    Path filePath = Paths.get(fileName);
-                    
+                for (int i = startIndex + 1; i < args.length; i++) {
+                    Path filePath = Paths.get(args[i]);
                     if (!filePath.isAbsolute()) {
                         filePath = currentDirectory.resolve(filePath);
                     }
                     filePath = filePath.toAbsolutePath().normalize();
 
-                   
                     if (!Files.exists(filePath)) {
-                        System.out.println("zip: warning: '" + fileName + "' not found, skipping");
+                        System.out.println("zip: warning: '" + filePath + "' not found, So we will skipping it -> ");
                         continue;
                     }
 
-                    if (!Files.isRegularFile(filePath)) {
-                        System.out.println("zip: warning: '" + fileName + "' is not a regular file, skipping");
-                        continue;
+                    if (recursive && Files.isDirectory(filePath)) {
+                        final Path finalFilePath = filePath;
+                        Files.walk(filePath).forEach(path -> {
+                            try {
+                                if (!Files.isDirectory(path)) {
+                                    ZipEntry entry = new ZipEntry(finalFilePath.relativize(path).toString());
+                                    zos.putNextEntry(entry);
+                                    Files.copy(path, zos);
+                                    zos.closeEntry();
+                                    System.out.println("  adding: " + path);
+                                }
+                            } catch (IOException e) {
+                                System.out.println("zip: error adding " + path + " -> " + e.getMessage());
+                            }
+                        });
+                    } else if (Files.isRegularFile(filePath)) {
+                        // ضغط ملف عادي
+                        ZipEntry entry = new ZipEntry(filePath.getFileName().toString());
+                        zos.putNextEntry(entry);
+                        Files.copy(filePath, zos);
+                        zos.closeEntry();
+                        System.out.println("  adding: " + filePath);
+                    } else {
+                        System.out.println("zip: warning: '" + filePath + "' is not a regular file, skipping");
                     }
-
-                    ZipEntry zipEntry = new ZipEntry(filePath.getFileName().toString());
-                    zos.putNextEntry(zipEntry);
-
-                    Files.copy(filePath, zos);
-                    zos.closeEntry();
-                    System.out.println("  adding: " + fileName);
                 }
                 System.out.println("zip: created archive '" + archiveName + "'");
             }
@@ -408,8 +448,7 @@ public class Terminal {
         }
     }
 
-
-     // ---------- unzip ----------
+    // ---------- unzip ----------
     public void unzip(String[] args) {
         if (args == null || args.length < 1 || args.length > 2) {
             System.out.println("unzip: usage: unzip <archive.zip> [destination]");
@@ -450,9 +489,10 @@ public class Terminal {
                 ZipEntry zipEntry;
                 while ((zipEntry = zis.getNextEntry()) != null) {
                     Path extractPath = destPath.resolve(zipEntry.getName()).normalize();
-                    
+
                     if (!extractPath.startsWith(destPath)) {
-                        System.out.println("unzip: warning: skipping potentially malicious entry: " + zipEntry.getName());
+                        System.out
+                                .println("unzip: warning: skipping potentially malicious entry: " + zipEntry.getName());
                         continue;
                     }
 
@@ -487,7 +527,8 @@ public class Terminal {
     }
 
     public void setCurrentDirectory(Path p) {
-        if (p != null) currentDirectory = p.toAbsolutePath().normalize();
+        if (p != null)
+            currentDirectory = p.toAbsolutePath().normalize();
     }
 
     public static void main(String[] args) {
@@ -507,7 +548,8 @@ public class Terminal {
                 break;
             }
 
-            if (input.isEmpty()) continue;
+            if (input.isEmpty())
+                continue;
 
             String[] parts = input.split("\\s+");
             String command = parts[0];
@@ -549,11 +591,11 @@ public class Terminal {
                     case "pwd":
                         System.out.println(terminal.getCurrentDirectory());
                         break;
-                        
+
                     case "cat":
                         terminal.cat(commandArgs);
                         break;
-                        
+
                     case "wc":
                         terminal.wc(commandArgs);
                         break;
@@ -594,7 +636,8 @@ public class Terminal {
         System.out.println("  rm <file>       - Remove a file");
         System.out.println("  pwd             - Show current directory");
         System.out.println("  wc              - Count number of lines and words in the file with the file name added");
-        System.out.println("  cat             - Print the file’s content or concatenates the content of the 2 files and prints it");
+        System.out.println(
+                "  cat             - Print the file’s content or concatenates the content of the 2 files and prints it");
         System.out.println("  help            - Show this help");
         System.out.println("  exit            - Exit the terminal");
     }

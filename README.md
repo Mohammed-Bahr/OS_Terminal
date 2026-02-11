@@ -123,15 +123,8 @@ Terminal.java
 
 ---
 
-## 🧾 License
-
-This project is open source and available under the **MIT License**.  
-You can freely use, modify, and distribute it for educational or personal use.
-
----
-
 ## 👤 Author
 
 **Mohamed Ahmed Maawad Mahmoud (محمد أحمد معوض محمود)**  
 Faculty of Computers and Artificial Intelligence, Cairo University  
-🌍 Egypt | 💻 Java Developer | ✉️ [LinkedIn](www.linkedin.com/in/møĥãmmęđ-bãĥŗ-91716529b)
+🌍 Egypt | 💻 Java Developer | ✉️ [LinkedIn](www.linkedin.com/in/møĥãmmęđ-bãĥŗ
